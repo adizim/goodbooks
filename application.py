@@ -97,22 +97,29 @@ def logout():
 
 @app.route("/books/<string:isbn>", methods=["GET", "POST"])
 def books(isbn):
-    allow_review = True
+    allow_review = False
     data = book_data(isbn)
+    reviews = db.execute("""
+    SELECT username, comment, rating, created_at FROM reviews, users WHERE book_isbn = :isbn
+    """, {"isbn": isbn}).fetchall()
 
     if request.method == "GET":
-
+        if 'user_id' in session:
+            current_book_user_review = db.execute("""
+            SELECT * FROM reviews, users WHERE user_id = :user_id AND book_isbn = :isbn
+            """, {"user_id": session['user_id'], "isbn": isbn}).first()
+            if not current_book_user_review:
+                allow_review = True
     else:
         comment = request.form.get('comment')
         rating = request.form.get('rating')
         db.execute("""
-        INSERT INTO reviews (comment, rating, created_at, user_id, book_isbn)
-        VALUES (:comment, :user_id, :zipcode)
-        """, {"comment": comment, "rating": rating})
+        INSERT INTO reviews (comment, rating, user_id, book_isbn)
+        VALUES (:comment, :rating, :user_id, :book_isbn)
+        """, {"comment": comment, "rating": rating, "user_id": session['user_id'], "book_isbn": isbn})
         db.commit()
 
-
-    return render_template('book.html')
+    return render_template('book.html', data=data, allow_review=allow_review, reviews=reviews)
 
 @app.route("/api/<string:isbn>")
 def api(isbn):
@@ -135,25 +142,3 @@ def book_data(isbn):
         "review_count": review_count,
         "average_score": average_score
     }
-
-@app.route("/locations/<string:zipcode>", methods=["GET", "POST"])
-def locations(zipcode):
-    allow_checkin = False
-    data = location_data(zipcode)
-    checkins = db.execute("SELECT username, time, comment FROM users, checkins WHERE checkins.zip = :zipcode",
-        {"zipcode": zipcode}).fetchall()
-
-    if request.method == "GET":
-        if 'user_id' in session:
-            cur_user_checkin = db.execute("""
-            SELECT username, time, comment FROM users, checkins WHERE checkins.zip = :zipcode AND users.id = :id
-            """, {"zipcode": zipcode, "id": session['user_id']}).first()
-            if not cur_user_checkin:
-                allow_checkin = True
-    else:
-        comment = request.form.get('comment')
-        db.execute('INSERT INTO checkins (comment, user_id, zip) VALUES (:comment, :user_id, :zipcode)',
-            {"comment": comment, "user_id": session['user_id'], "zipcode": zipcode})
-        db.commit()
-
-    return render_template('location.html', data=data, checkins=checkins, allow_checkin=allow_checkin)
