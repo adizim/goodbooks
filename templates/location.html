@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h1>{{ data["place_name"] }}, {{ data["state"] }} {{ data["zip"] }}</h1>
+
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">Population {{ data["population"] }}</li>
+            <li class="list-group-item">Latitude, Longitude {{ data["latitude"] }} {{ data["longitude"] }}</li>
+            <li class="list-group-item">Checkins {{ data["check_ins"] }}</li>
+        </ul>
+
+        <h3>Weather</h3>
+        <p>dark sky weather data</p>
+    </div>
+
+    <div class="container">
+        {% if allow_checkin %}
+            <form class="form-inline" action="{{ url_for('locations', zipcode=data['zip']) }}" method="post">
+                <input class="text" name="comment" placeholder="Enter a comment">
+                <button>Submit</button>
+            </form>
+        {% endif %}
+        {% for checkin in checkins %}
+            <article class="comment">
+                <header>
+                    <div class="user"> {{ checkin.username }} </div>
+                    <div class="time"> {{ checkin.time }} </div>
+                </header>
+                <p class="comment_text"> {{ checkin.comment }} </p>
+            </article>
+        {% endfor %}
+    </div>
+
+{% endblock %}

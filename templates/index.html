@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <form action="" method="post">
+        <input type="text" name="place" placeholder="Enter your zipcode or city">
+        <button>Submit</button>
+    <form>
+{% endblock %}
+
+{% block content %}
+    <ul>
+        {% for loc in locations %}
+            <li><a href="{{ url_for('locations', zipcode=loc.zip) }}">{{ loc.city }}, {{ loc.state }} {{ loc.zip }}</a></li>
+        {% else %}
+            <h1>No matches.</h1>
+        {% endfor %}
+    </ul>
+{% endblock %}
