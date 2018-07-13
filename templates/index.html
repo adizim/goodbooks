@@ -1,18 +1,20 @@
 {% extends 'base.html' %}
 
+{% block title %} Goodbooks - Search and Review Books {% endblock %}
+
 {% block header %}
-    <form action="" method="post">
-        <input type="text" name="place" placeholder="Enter your zipcode or city">
+    <form action="{{ url_for('index') }}" method="post">
+        <input type="text" name="query" placeholder="Enter book title, author, or ISBN">
         <button>Submit</button>
     <form>
 {% endblock %}
 
 {% block content %}
-    <ul>
-        {% for loc in locations %}
-            <li><a href="{{ url_for('locations', zipcode=loc.zip) }}">{{ loc.city }}, {{ loc.state }} {{ loc.zip }}</a></li>
-        {% else %}
-            <h1>No matches.</h1>
-        {% endfor %}
+    <ul class="list-group">
+        {% if searched %}
+            {% for b in books %}
+                <li class="list-group-item"><a href="{{ url_for('books', isbn = b.isbn) }}">{{ b.title }}, {{ b.author }}</a></li>
+            {% endfor %}
+        {% endif %}
     </ul>
 {% endblock %}
