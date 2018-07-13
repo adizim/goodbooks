@@ -5,15 +5,43 @@
 {% block content %}
 
     <div class="container">
-        details title, author, publication year, ISBN number, and any reviews
+        {{ data['title'], data['author'], data['year'], data['isbn'] }}
+         average rating and number of ratings powered by Goodreads
     </div>
 
     <div class="container">
-        submit review, rating
-    </div>
-
-    <div class="container">
-        average rating and number of ratings powered by Goodreads
+        {% if allow_review %}
+            <form class="form-inline" action="{{ url_for('books', isbn=data['isbn']) }}" method="post">
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <input class="form-control" type="text" id="comment" placeholder="Enter a comment">
+                </div>
+                <div class="form-group">
+                    <label for="select">Rating</label>
+                    <select class="form-control" id="select">
+                      <option>1</option>
+                      <option>2</option>
+                      <option>3</option>
+                      <option>4</option>
+                      <option>5</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        {% endif %}
+        {% for review in reviews %}
+        <ul class="list-group">
+          <li class="list-group-item">
+              <article class="comment">
+                <header>
+                    <div class="user"> {{ review.username }} </div>
+                    <div class="time"> {{ review.created_at }} </div>
+                </header>
+                <p class="comment_text"> {{ review.comment }} </p>
+            </article>
+          </li>
+        </ul>
+        {% endfor %}
     </div>
 
 {% endblock %}
