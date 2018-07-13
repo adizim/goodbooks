@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, session
+from flask import Flask, session, request, render_template, flash, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -22,18 +22,22 @@ db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    username = session.get("user_id") ? db.execute("SELECT username FROM users WHERE id = :id", {"id": session["user_id"]}).first().username : None
+    username = db.execute("SELECT username FROM users WHERE id = :id", {"id": session["user_id"]}).first().username \
+    if session.get("user_id") else None
 
+    searched = False
     books = []
     if request.method == "POST":
+        searched = True
         query = request.form.get("query")
         books = db.execute("""
-        SELECT title, author
-        FROM books
+        SELECT isbn, title, author FROM books
         WHERE isbn LIKE :query OR title LIKE :query OR author LIKE :query
         """, {"query": '%' + query + '%'}).fetchall()
+        if not books:
+            flash('Your query returned no matches.')
 
-    return render_template("index.html", books=books, username=username)
+    return render_template("index.html", searched=searched, books=books, username=username)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -91,22 +95,45 @@ def logout():
     session.pop("user_id")
     return redirect(url_for('index'))
 
-def location_data(zipcode):
-    locations_row = db.execute("SELECT * FROM locations WHERE zip = :zipcode", {"zipcode": zipcode}).first()
+@app.route("/books/<string:isbn>", methods=["GET", "POST"])
+def books(isbn):
+    allow_review = True
+    data = book_data(isbn)
 
-    if not locations_row:
-        return abort(404, f'Your zipcode [{zipcode}] is not valid or does not exist. We only support United States zipcodes currently.')
+    if request.method == "GET":
 
-    checkins_row = db.execute("SELECT COUNT(*) FROM checkins WHERE zip = :zipcode", {"zipcode": zipcode}).first()
+    else:
+        comment = request.form.get('comment')
+        rating = request.form.get('rating')
+        db.execute("""
+        INSERT INTO reviews (comment, rating, created_at, user_id, book_isbn)
+        VALUES (:comment, :user_id, :zipcode)
+        """, {"comment": comment, "rating": rating})
+        db.commit()
+
+
+    return render_template('book.html')
+
+@app.route("/api/<string:isbn>")
+def api(isbn):
+    return jsonify(book_data(isbn))
+
+def book_data(isbn):
+    book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).first()
+
+    if not book:
+        return abort(404, f'No book exists with isbn [{isbn}].')
+
+    review_count = db.execute("SELECT COUNT(*) FROM reviews WHERE book_isbn = :isbn", {"isbn": isbn}).first().count
+    average_score = db.execute("SELECT AVG(rating::DECIMAL) FROM reviews WHERE book_isbn = :isbn", {"isbn": isbn}).first().avg
 
     return {
-        "place_name": locations_row.city.capitalize(),
-        "state": locations_row.state,
-        "latitude": float(locations_row.lat),
-        "longitude": float(locations_row.lon),
-        "zip": locations_row.zip,
-        "population": locations_row.population,
-        "check_ins": checkins_row.count
+        "title": book.title,
+        "author": book.author,
+        "year": book.year,
+        "isbn": book.isbn,
+        "review_count": review_count,
+        "average_score": average_score
     }
 
 @app.route("/locations/<string:zipcode>", methods=["GET", "POST"])
@@ -130,7 +157,3 @@ def locations(zipcode):
         db.commit()
 
     return render_template('location.html', data=data, checkins=checkins, allow_checkin=allow_checkin)
-
-@app.route("/api/<string:zipcode>")
-def api(zipcode):
-    return jsonify(location_data(zipcode))
