@@ -34,7 +34,7 @@ def main():
 	    id SERIAL PRIMARY KEY,
 	    comment TEXT NOT NULL,
 	    rating INTEGER NOT NULL CHECK(rating > 0 AND rating < 6),
-	    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+	    created_at TIMESTAMP DEFAULT NOW(),
 	    user_id INTEGER REFERENCES users NOT NULL UNIQUE,
 	    book_isbn VARCHAR REFERENCES books NOT NULL
 	)
