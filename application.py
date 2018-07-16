@@ -1,9 +1,11 @@
 import os
 
-from flask import Flask, session, request, render_template, flash, jsonify
+from flask import Flask, session, request, render_template, flash, jsonify, redirect, url_for
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+
+import requests
 
 app = Flask(__name__)
 
@@ -25,19 +27,19 @@ def index():
     username = db.execute("SELECT username FROM users WHERE id = :id", {"id": session["user_id"]}).first().username \
     if session.get("user_id") else None
 
-    searched = False
     books = []
     if request.method == "POST":
-        searched = True
         query = request.form.get("query")
+        print(query)
         books = db.execute("""
         SELECT isbn, title, author FROM books
-        WHERE isbn LIKE :query OR title LIKE :query OR author LIKE :query
+        WHERE isbn LIKE :query OR lower(title) LIKE :query OR lower(author) LIKE :query
         """, {"query": '%' + query + '%'}).fetchall()
+        print(books)
         if not books:
             flash('Your query returned no matches.')
 
-    return render_template("index.html", searched=searched, books=books, username=username)
+    return render_template("index.html", books=books, username=username)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -97,8 +99,9 @@ def logout():
 
 @app.route("/books/<string:isbn>", methods=["GET", "POST"])
 def books(isbn):
+    username = db.execute("SELECT username FROM users WHERE id = :id", {"id": session["user_id"]}).first().username \
+    if session.get("user_id") else None
     allow_review = False
-    data = book_data(isbn)
     reviews = db.execute("""
     SELECT username, comment, rating, created_at FROM reviews, users WHERE book_isbn = :isbn
     """, {"isbn": isbn}).fetchall()
@@ -119,7 +122,8 @@ def books(isbn):
         """, {"comment": comment, "rating": rating, "user_id": session['user_id'], "book_isbn": isbn})
         db.commit()
 
-    return render_template('book.html', data=data, allow_review=allow_review, reviews=reviews)
+    return render_template('book.html', book_data=book_data(isbn), goodreads_data=goodreads(isbn),
+        allow_review=allow_review, reviews=reviews, username=username)
 
 @app.route("/api/<string:isbn>")
 def api(isbn):
@@ -142,3 +146,7 @@ def book_data(isbn):
         "review_count": review_count,
         "average_score": average_score
     }
+
+def goodreads(isbn):
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "lioRDgtLsIUsjCDwMFBbEQ", "isbns": isbn})
+    return res.json()['books'][0]

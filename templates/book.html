@@ -5,20 +5,21 @@
 {% block content %}
 
     <div class="container">
-        {{ data['title'], data['author'], data['year'], data['isbn'] }}
-         average rating and number of ratings powered by Goodreads
+        {{ book_data['title'], book_data['author'], book_data['year'], book_data['isbn'] }}
+        Num ratings: {{ goodreads_data['work_ratings_count'] }}
+        Average score: {{ goodreads_data['average_rating'] }}
     </div>
 
     <div class="container">
         {% if allow_review %}
-            <form class="form-inline" action="{{ url_for('books', isbn=data['isbn']) }}" method="post">
+            <form class="form-inline" action="{{ url_for('books', isbn=book_data['isbn']) }}" method="post">
                 <div class="form-group">
                     <label for="comment">Comment</label>
-                    <input class="form-control" type="text" id="comment" placeholder="Enter a comment">
+                    <input class="form-control" type="text" id="comment" name="comment" placeholder="Enter a comment">
                 </div>
                 <div class="form-group">
                     <label for="select">Rating</label>
-                    <select class="form-control" id="select">
+                    <select class="form-control" id="select" name="rating">
                       <option>1</option>
                       <option>2</option>
                       <option>3</option>

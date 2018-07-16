@@ -11,10 +11,8 @@
 
 {% block content %}
     <ul class="list-group">
-        {% if searched %}
-            {% for b in books %}
-                <li class="list-group-item"><a href="{{ url_for('books', isbn = b.isbn) }}">{{ b.title }}, {{ b.author }}</a></li>
-            {% endfor %}
-        {% endif %}
+        {% for b in books %}
+            <li class="list-group-item"><a href="{{ url_for('books', isbn = b.isbn) }}">{{ b.title }}, {{ b.author }}</a></li>
+        {% endfor %}
     </ul>
 {% endblock %}
