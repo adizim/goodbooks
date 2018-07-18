@@ -3,16 +3,26 @@
 {% block title %} Goodbooks - Search and Review Books {% endblock %}
 
 {% block header %}
-    <form action="{{ url_for('index') }}" method="post">
-        <input type="text" name="query" placeholder="Enter book title, author, or ISBN">
-        <button>Submit</button>
-    <form>
+        <div class="container mt-4 mb-4">
+        <form action="{{ url_for('index') }}" method="post">
+            <div class="form-row align-items-center">
+                <div class="col-8">
+                    <input class="form-control" type="text" name="query" placeholder="Enter book title, author, or ISBN">
+                </div>
+                <div class="col">
+                    <button class="btn btn-primary" type="button">Submit</button>
+                </div>
+            </div>
+        <form>
+        </div>
 {% endblock %}
 
 {% block content %}
-    <ul class="list-group">
-        {% for b in books %}
-            <li class="list-group-item"><a href="{{ url_for('books', isbn = b.isbn) }}">{{ b.title }}, {{ b.author }}</a></li>
-        {% endfor %}
-    </ul>
+    <div class="container">
+        <ul class="list-group">
+            {% for b in books %}
+                <li class="list-group-item"><a href="{{ url_for('books', isbn = b.isbn) }}">{{ b.title }}, {{ b.author }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}
