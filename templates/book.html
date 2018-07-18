@@ -4,13 +4,31 @@
 
 {% block content %}
 
-    <div class="container">
-        {{ book_data['title'], book_data['author'], book_data['year'], book_data['isbn'] }}
-        Num ratings: {{ goodreads_data['work_ratings_count'] }}
-        Average score: {{ goodreads_data['average_rating'] }}
+    <div class="container mt-4 mb-4">
+        <h1 class="display-4">{{ book_data['title'] }}</h1>
+        <dl class="row">
+            <dt class="col-sm-3">Author</dt>
+            <dd class="col-sm-9">{{ book_data['author'] }}</dd>
+
+            <dt class="col-sm-3">Year</dt>
+            <dd class="col-sm-9">{{ book_data['year'] }}</dd>
+
+            <dt class="col-sm-3">ISBN</dt>
+            <dd class="col-sm-9">{{ book_data['isbn'] }}</dd>
+
+            <dt class="col-sm-3">Ratings</dt>
+            <dd class="col-sm-9">{{ goodreads_data['work_ratings_count'] }}</dd>
+
+            <dt class="col-sm-3">Average Score</dt>
+            <dd class="col-sm-9">{{ goodreads_data['average_rating'] }}</dd>
+        </dl>
+
+        <hr>
     </div>
 
-    <div class="container">
+
+
+    <div class="container mt-4 mb-4">
         {% if allow_review %}
             <form class="form-inline" action="{{ url_for('books', isbn=book_data['isbn']) }}" method="post">
                 <div class="form-group">

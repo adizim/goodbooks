@@ -13,10 +13,12 @@
     </head>
     <body>
         {% block form %}{% endblock %}
-        {% for message in get_flashed_messages() %}
-            <div class="alert alert-warning" role="alert">
-                {{ message }}
-            </div>
-        {% endfor %}
+        <div class="container">
+            {% for message in get_flashed_messages() %}
+                <div class="alert alert-warning" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
     </body>
 </html>

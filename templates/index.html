@@ -10,7 +10,7 @@
                     <input class="form-control" type="text" name="query" placeholder="Enter book title, author, or ISBN">
                 </div>
                 <div class="col">
-                    <button class="btn btn-primary" type="button">Submit</button>
+                    <button class="btn btn-primary" type="button">Search</button>
                 </div>
             </div>
         <form>
@@ -19,9 +19,13 @@
 
 {% block content %}
     <div class="container">
-        <ul class="list-group">
+        <ul class="list-group list-group-flush">
             {% for b in books %}
-                <li class="list-group-item"><a href="{{ url_for('books', isbn = b.isbn) }}">{{ b.title }}, {{ b.author }}</a></li>
+                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ url_for('books', isbn = b.isbn) }}">
+                    {{ b.title }}, {{ b.author }}
+                    <small>{{ b.isbn }}</small>
+                </a>
+
             {% endfor %}
         </ul>
     </div>
