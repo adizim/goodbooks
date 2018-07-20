@@ -6,7 +6,7 @@
 
     <div class="container mt-4 mb-4">
         <h1 class="display-4">{{ book_data['title'] }}</h1>
-        <dl class="row">
+        <dl class="row mt-4 mb-4">
             <dt class="col-sm-3">Author</dt>
             <dd class="col-sm-9">{{ book_data['author'] }}</dd>
 
@@ -25,8 +25,6 @@
 
         <hr>
     </div>
-
-
 
     <div class="container mt-4 mb-4">
         {% if allow_review %}

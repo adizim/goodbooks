@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, session, request, render_template, flash, jsonify, redirect, url_for
+from flask import Flask, session, request, render_template, flash, jsonify, redirect, url_for, abort
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -53,7 +53,7 @@ def register():
         elif not password:
             error = 'Password is required'
         elif db.execute("SELECT id FROM users WHERE username=:username", {"username": username}).first():
-            error = f'User with username [{username}] already exists'
+            error = 'User with username [{username}] already exists'
 
         if error is None:
             db.execute("INSERT INTO users (username, password) VALUES (:username, :password)",
@@ -133,7 +133,7 @@ def book_data(isbn):
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).first()
 
     if not book:
-        return abort(404, f'No book exists with isbn [{isbn}].')
+        return abort(404, 'No book exists with isbn [{isbn}].')
 
     review_count = db.execute("SELECT COUNT(*) FROM reviews WHERE book_isbn = :isbn", {"isbn": isbn}).first().count
     average_score = db.execute("SELECT AVG(rating::DECIMAL) FROM reviews WHERE book_isbn = :isbn", {"isbn": isbn}).first().avg
