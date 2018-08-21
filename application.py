@@ -135,6 +135,7 @@ def book_data(isbn):
 
     review_count = db.execute("SELECT COUNT(*) FROM reviews WHERE book_isbn = :isbn", {"isbn": isbn}).first().count
     average_score = db.execute("SELECT AVG(rating::DECIMAL) FROM reviews WHERE book_isbn = :isbn", {"isbn": isbn}).first().avg
+    average_score = '%.2f'%(average_score)
 
     return {
         "title": book.title,
