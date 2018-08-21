@@ -131,7 +131,7 @@ def book_data(isbn):
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).first()
 
     if not book:
-        return abort(404, 'No book exists with isbn [{isbn}].')
+        return abort(404, 'No book exists with isbn {}.'.format(isbn))
 
     review_count = db.execute("SELECT COUNT(*) FROM reviews WHERE book_isbn = :isbn", {"isbn": isbn}).first().count
     average_score = db.execute("SELECT AVG(rating::DECIMAL) FROM reviews WHERE book_isbn = :isbn", {"isbn": isbn}).first().avg
