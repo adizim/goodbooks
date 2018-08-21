@@ -4,12 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-"psycopg2" = "*"
+"psycopg2-binary" = "*"
 Flask = "*"
 Flask-Session = "*"
 SQLAlchemy = "*"
 requests = "*"
-"psycopg2-binary" = "*"
 
 [dev-packages]
 
