@@ -30,12 +30,10 @@ def index():
     books = []
     if request.method == "POST":
         query = request.form.get("query")
-        print(query)
         books = db.execute("""
         SELECT isbn, title, author FROM books
         WHERE isbn LIKE :query OR lower(title) LIKE :query OR lower(author) LIKE :query
         """, {"query": '%' + query + '%'}).fetchall()
-        print(books)
         if not books:
             flash('Your query returned no matches.')
 
