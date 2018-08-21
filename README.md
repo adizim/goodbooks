@@ -1,13 +1,10 @@
-# Project 1
+# Goodbooks
 
-Web Programming with Python and JavaScript
+Search for, review, and discuss 5000 books. Powered by Goodreads!
 
-# Description
+# API Access
 
-A book review website
+Query a Goodbooks book (title, author, publication date, ISBN number, review count, and average score) https://thegoodbooks.herokuapp.com/api/<isbn>
 
-# Todo:
 
-Style:
-1. Update every page with Bootstrap prettiness
-2. Mobile support (viewport + media queries)
+
